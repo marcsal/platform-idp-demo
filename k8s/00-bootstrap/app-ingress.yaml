@@ -9,6 +9,8 @@ spec:
     repoURL: 'https://github.com/marcsal/platform-idp-demo' # Tu repo
     targetRevision: HEAD
     path: k8s/02-ingress # <-- Solo vigila tus Ingress
+    plugin:
+      name: argocd-vault-plugin
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default

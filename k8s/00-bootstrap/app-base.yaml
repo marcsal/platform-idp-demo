@@ -11,6 +11,8 @@ spec:
     repoURL: 'https://github.com/marcsal/platform-idp-demo'
     targetRevision: HEAD
     path: k8s/01-base # Apunta a tu carpeta base
+    plugin:
+      name: argocd-vault-plugin
   destination:
     server: 'https://kubernetes.default.svc'
   syncPolicy:
