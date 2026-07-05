@@ -8,9 +8,9 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - argocd.34.175.147.63.nip.io
+    - argocd.34.175.98.1.nip.io
   rules:
-  - host: argocd.34.175.147.63.nip.io
+  - host: argocd.34.175.98.1.nip.io
     http:
       paths:
       - path: /
