@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Developer Platform | MArcos Salcedo</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0d1117; color: #c9d1d9; line-height: 1.6; margin: 0; padding: 0; }
+        header { background-color: #161b22; padding: 2rem; text-align: center; border-bottom: 1px solid #30363d; }
+        h1 { color: #58a6ff; margin: 0; }
+        h2 { color: #2ea043; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 2rem; }
+        .card { background-color: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .tag { display: inline-block; background-color: #1f6feb; color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.8rem; margin-right: 0.5rem; }
+        .footer { text-align: center; padding: 2rem; font-size: 0.9rem; color: #8b949e; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Internal Developer Platform (IDP)</h1>
+        <p>Por MArcos Salcedo - Platform Engineer</p>
+    </header>
+    <div class="container">
+        <p>Esta página demuestra la construcción de un "Golden Path" para despliegues. Es una prueba de concepto E2E alojada en Google Kubernetes Engine (GKE), diseñada para reducir la carga cognitiva de los equipos de desarrollo mediante automatización y GitOps.</p>
+        
+        <div class="card">
+            <h2>1. Infraestructura Base Eficiente</h2>
+            <p>Aprovisionamiento automatizado del clúster mediante <strong>Terraform</strong>. Se ha aplicado una estrategia FinOps separando el plano de control y utilizando un pool de nodos <em>preemptibles</em> para optimizar el coste de los entornos de desarrollo.</p>
+            <span class="tag">Terraform</span> <span class="tag">GKE</span> <span class="tag">FinOps</span>
+        </div>
+
+        <div class="card">
+            <h2>2. Developer Experience (DevEx) & GitOps</h2>
+            <p>El ciclo de vida del software está gobernado por <strong>ArgoCD</strong>. Los desarrolladores solo necesitan hacer <em>push</em> a su repositorio; el modelo <em>Pull</em> asegura que el estado deseado en Git se reconcilie automáticamente en el clúster de Kubernetes, eliminando la necesidad de dar acceso directo a la infraestructura.</p>
+            <span class="tag">ArgoCD</span> <span class="tag">Kubernetes</span> <span class="tag">CI/CD</span>
+        </div>
+
+        <div class="card">
+            <h2>3. Telemetría y Enrutamiento Centralizado</h2>
+            <p>La plataforma ofrece observabilidad "out-of-the-box" mediante el stack de <strong>Prometheus y Grafana</strong>. El tráfico externo se gestiona de forma eficiente a través de un único <strong>NGINX Ingress Controller</strong>, optimizando el uso de balanceadores de carga en la nube.</p>
+            <span class="tag">NGINX Ingress</span> <span class="tag">Prometheus</span> <span class="tag">Grafana</span>
+        </div>
+    </div>
+    <div class="footer">
+        Imagen construida y empaquetada mediante GitHub Actions.
+    </div>
+</body>
+</html>
