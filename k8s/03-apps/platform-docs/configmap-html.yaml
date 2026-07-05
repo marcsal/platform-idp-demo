@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: idp-docs-html
+  namespace: default
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>IDP Architecture - GitOps</title>
+        <style>
+            body { background-color: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; padding: 40px; line-height: 1.6; }
+            h1 { color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+            h2 { color: #3fb950; margin-top: 30px; }
+            .card { background-color: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+            .highlight { color: #f2cc60; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+        <h1>🚀 Internal Developer Platform (IDP)</h1>
+        <p>Plataforma de despliegue automatizado Zero-Touch basada en Kubernetes y GitOps.</p>
+        
+        <div class="card">
+            <h2>🏗️ 1. Infraestructura como Código (Terraform)</h2>
+            <p>Aprovisionamiento inmutable en Google Cloud (GKE). La red externaliza la IP estática para proteger el Ingress Controller de los ciclos de destrucción, garantizando el patrón <span class="highlight">FinOps / Ephemeral Clusters</span>.</p>
+        </div>
+
+        <div class="card">
+            <h2>🐙 2. Motor GitOps (ArgoCD)</h2>
+            <p>Implementación del patrón <span class="highlight">App of Apps</span>. Orquestación separada por dominios de responsabilidad:</p>
+            <ul>
+                <li><b>Infra-Base:</b> Namespaces y cimientos (Sync Waves).</li>
+                <li><b>Observabilidad:</b> Despliegue Multi-Source (Helm + Git) ignorando divergencias de estado (terminatingReplicas).</li>
+                <li><b>Negocio:</b> Aislamiento de cargas de trabajo de desarrollo.</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h2>⚙️ 3. Resiliencia</h2>
+            <p>Capacidad de recuperación total ante desastres. Un comando <code>terraform apply</code> reconstruye toda la topología de red, el clúster y el ecosistema de software en menos de 10 minutos sin intervención humana.</p>
+        </div>
+    </body>
+    </html>

@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: idp-web-business # <-- Nombre de la tarjeta
+  name: idp-platform-docs
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: 'https://github.com/marcsal/platform-idp-demo'
     targetRevision: HEAD
-    path: k8s/03-apps/web-business
+    path: k8s/03-apps/platform-docs # <-- Apunta a la nueva carpeta
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default

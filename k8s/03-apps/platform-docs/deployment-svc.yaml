@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idp-docs-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: idp-docs
+  template:
+    metadata:
+      labels:
+        app: idp-docs
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html # Sobrescribimos el HTML de NGINX
+      volumes:
+      - name: html-volume
+        configMap:
+          name: idp-docs-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: idp-docs-service
+  namespace: default
+spec:
+  selector:
+    app: idp-docs
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
