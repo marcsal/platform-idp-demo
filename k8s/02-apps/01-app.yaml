@@ -42,7 +42,7 @@ spec:
   ingressClassName: nginx
   rules:
   # Tu nuevo subdominio dinámico
-  - host: idp.34.175.20.186.nip.io
+  - host: idp.34.175.98.1.nip.io
     http:
       paths:
       - path: /
