@@ -9,37 +9,64 @@ data:
     <html lang="es">
     <head>
         <meta charset="UTF-8">
-        <title>IDP Architecture - GitOps</title>
+        <title>SRE Journey: Zero-Touch IDP</title>
         <style>
-            body { background-color: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; padding: 40px; line-height: 1.6; }
-            h1 { color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
-            h2 { color: #3fb950; margin-top: 30px; }
-            .card { background-color: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+            body { background-color: #0d1117; color: #c9d1d9; font-family: 'Consolas', 'Courier New', monospace; padding: 20px 10%; line-height: 1.6; }
+            h1 { color: #58a6ff; text-align: center; border-bottom: 2px solid #30363d; padding-bottom: 20px; }
+            .step { background-color: #161b22; border-left: 5px solid #3fb950; padding: 20px; border-radius: 4px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+            .step-title { color: #3fb950; font-size: 1.5em; margin-top: 0; }
+            code { background-color: #21262d; padding: 2px 6px; border-radius: 3px; color: #ff7b72; font-size: 0.9em; }
             .highlight { color: #f2cc60; font-weight: bold; }
         </style>
     </head>
     <body>
-        <h1>🚀 Internal Developer Platform (IDP)</h1>
-        <p>Plataforma de despliegue automatizado Zero-Touch basada en Kubernetes y GitOps.</p>
+        <h1>🚀 Construyendo una IDP: Step-by-Step</h1>
+        <p style="text-align: center; margin-bottom: 40px;">Documentación viva del despliegue de una Plataforma Interna de Desarrollo (IDP) utilizando Terraform, GKE y ArgoCD.</p>
         
-        <div class="card">
-            <h2>🏗️ 1. Infraestructura como Código (Terraform)</h2>
-            <p>Aprovisionamiento inmutable en Google Cloud (GKE). La red externaliza la IP estática para proteger el Ingress Controller de los ciclos de destrucción, garantizando el patrón <span class="highlight">FinOps / Ephemeral Clusters</span>.</p>
-        </div>
-
-        <div class="card">
-            <h2>🐙 2. Motor GitOps (ArgoCD)</h2>
-            <p>Implementación del patrón <span class="highlight">App of Apps</span>. Orquestación separada por dominios de responsabilidad:</p>
+        <div class="step">
+            <h2 class="step-title">Paso 1: Tabula Rasa (Infraestructura Base)</h2>
+            <p>Todo comienza con un comando: <code>terraform apply</code>.</p>
             <ul>
-                <li><b>Infra-Base:</b> Namespaces y cimientos (Sync Waves).</li>
-                <li><b>Observabilidad:</b> Despliegue Multi-Source (Helm + Git) ignorando divergencias de estado (terminatingReplicas).</li>
-                <li><b>Negocio:</b> Aislamiento de cargas de trabajo de desarrollo.</li>
+                <li>Se provisiona una red VPC en Google Cloud.</li>
+                <li>Se reserva una <span class="highlight">IP Estática global</span>. Aislar la IP del ciclo de vida del clúster nos permite destruir y recrear la infraestructura sin tener que reconfigurar los registros DNS de las aplicaciones.</li>
+                <li>Se levanta un clúster de Kubernetes (GKE) con sus respectivos Node Pools.</li>
             </ul>
         </div>
-        
-        <div class="card">
-            <h2>⚙️ 3. Resiliencia</h2>
-            <p>Capacidad de recuperación total ante desastres. Un comando <code>terraform apply</code> reconstruye toda la topología de red, el clúster y el ecosistema de software en menos de 10 minutos sin intervención humana.</p>
+
+        <div class="step">
+            <h2 class="step-title">Paso 2: La Conexión de Red (Ingress Controller)</h2>
+            <p>Aún dentro de Terraform, utilizamos el provider de Helm para instalar <b>NGINX Ingress Controller</b>.</p>
+            <p>Se vincula estratégicamente a la IP estática reservada en el Paso 1. A partir de este momento, el clúster ya sabe cómo enrutar el tráfico externo hacia el interior.</p>
+        </div>
+
+        <div class="step">
+            <h2 class="step-title">Paso 3: El Despertar de GitOps (Bootstrap)</h2>
+            <p>Terraform instala el servidor base de ArgoCD y da su última instrucción mediante un <code>null_resource</code>: inyecta el manifiesto <b>"Jefe"</b> (App Raíz).</p>
+            <p>Este manifiesto apunta a la carpeta <code>k8s/00-bootstrap/</code> del repositorio Git. A partir de aquí, Terraform se retira y ArgoCD toma el control absoluto de la plataforma.</p>
+        </div>
+
+        <div class="step">
+            <h2 class="step-title">Paso 4: Sync Waves y Cimientos lógicos</h2>
+            <p>ArgoCD lee las tarjetas del bootstrap, pero no las lanza a lo loco. Utilizamos <span class="highlight">Sync Waves</span> para asegurar el orden:</p>
+            <ul>
+                <li><b>Ola 1:</b> Se crea el namespace <code>monitoring</code> aislando la capa base.</li>
+                <li><b>Ola 2:</b> Se despliegan las aplicaciones sobre cimientos ya garantizados, eliminando las condiciones de carrera (Race Conditions).</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2 class="step-title">Paso 5: Observabilidad Avanzada (Multi-Source)</h2>
+            <p>Desplegamos el stack de Prometheus combinando dos fuentes en una sola tarjeta de ArgoCD (patrón Multi-Source):</p>
+            <ul>
+                <li>El Chart oficial de Helm (v59.1.0 fijada para estabilidad).</li>
+                <li>Nuestra carpeta Git local con las reglas de Ingress personalizadas.</li>
+            </ul>
+            <p>Para evitar bloqueos por divergencias en la API de Kubernetes, implementamos <code>ignoreDifferences</code> sobre el campo efímero <code>.status.terminatingReplicas</code> y habilitamos <code>ServerSideApply=true</code> para lidiar con el tamaño masivo de los CRDs.</p>
+        </div>
+
+        <div class="step">
+            <h2 class="step-title">Paso 6: Despliegue de Negocio</h2>
+            <p>Finalmente, las aplicaciones de desarrollo (como esta misma web) aterrizan en sus propias carpetas dentro de <code>k8s/03-apps/</code>. Tienen su ciclo de vida independiente, no interfieren con la plataforma y están listas para recibir tráfico real.</p>
         </div>
     </body>
     </html>
