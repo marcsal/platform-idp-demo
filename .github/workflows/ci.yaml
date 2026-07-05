@@ -3,7 +3,9 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - main # El pipeline saltará cada vez que hagas push a la rama main
+      - main
+    paths-ignore:
+      - 'k8s/**' # Evita bucles infinitos si solo cambia el YAML
 
 env:
   REGISTRY: ghcr.io
@@ -13,7 +15,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write  # ¡CRÍTICO! Permite al bot hacer push de código
       packages: write
 
     steps:
@@ -42,3 +44,21 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Actualizar manifiesto K8s (GitOps Bridge)
+        run: |
+          # 1. Extraemos el tag exacto que acabamos de compilar
+          SHORT_SHA="sha-${GITHUB_SHA::7}"
+          
+          # 2. Usamos 'sed' para buscar la línea de la imagen y reemplazarla por la nueva
+          sed -i -E "s|image: .*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA|g" k8s/app.yaml
+          
+          # 3. Configuramos la identidad del bot de GitHub
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 4. Hacemos commit y push del cambio. 
+          # El [skip ci] en el mensaje evita que el pipeline se vuelva a lanzar en bucle
+          git add k8s/app.yaml
+          git commit -m "chore(gitops): actualiza tag de imagen a $SHORT_SHA [skip ci]" || echo "No hay cambios para commitear"
+          git push
