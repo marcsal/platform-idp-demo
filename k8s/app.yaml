@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idp-web
+  namespace: default
+spec:
+  replicas: 2 # Demostramos alta disponibilidad (SRE)
+  selector:
+    matchLabels:
+      app: idp-web
+  template:
+    metadata:
+      labels:
+        app: idp-web
+    spec:
+      containers:
+      - name: frontend
+        image: ghcr.io/marcsal/platform-idp-demo:sha-8693c91
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: idp-web-svc
+  namespace: default
+spec:
+  selector:
+    app: idp-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: idp-web-ingress
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  # Tu nuevo subdominio dinámico
+  - host: idp.34.175.20.186.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: idp-web-svc
+            port:
+              number: 80
