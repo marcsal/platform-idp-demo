@@ -5,18 +5,31 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    # En lugar de un repo Git, le damos la URL oficial del repositorio Helm
-    repoURL: https://prometheus-community.github.io/helm-charts
-    targetRevision: 59.1.0 # ¡Buena práctica! Fijar la versión para evitar actualizaciones sorpresa
-    chart: kube-prometheus-stack
+  sources:
+    # 1. El Helm Oficial de Prometheus
+    - repoURL: 'https://prometheus-community.github.io/helm-charts'
+      chart: kube-prometheus-stack
+      targetRevision: 59.1.0
+    # 2. Tus Ingress locales de monitorización
+    - repoURL: 'https://github.com/marcsal/platform-idp-demo'
+      targetRevision: HEAD
+      path: k8s/04-monitoring-ingresses
   destination:
-    server: https://kubernetes.default.svc
+    server: 'https://kubernetes.default.svc'
     namespace: monitoring
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true # Crea el namespace 'monitoring' automáticamente
-      - ServerSideApply=true # Necesario porque los CRDs de Prometheus son inmensos
+    - CreateNamespace=true
+    - ServerSideApply=true
+  ignoreDifferences:
+  - group: apps
+    kind: StatefulSet
+    jsonPointers:
+    - /status/terminatingReplicas
+  - group: apps
+    kind: Deployment
+    jsonPointers:
+    - /status/terminatingReplicas
