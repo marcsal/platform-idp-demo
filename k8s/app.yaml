@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/marcsal/platform-idp-demo:sha-76fa2e4
+        image: ghcr.io/marcsal/platform-idp-demo:sha-9eff241
         ports:
         - containerPort: 80
 ---
